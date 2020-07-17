@@ -1,0 +1,68 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: wordpress
+  labels:
+    app: wordpress
+
+spec:
+  type: LoadBalancer
+  ports:
+    - port: 80
+  selector:
+    app: wordpress
+    env: prod
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: wordpress
+  labels:
+    app: wordpress
+
+spec:
+  selector:
+    matchLabels:
+      app: wordpress
+      env: prod
+  strategy:
+    type: Recreate
+
+  template:
+    metadata:
+      labels:
+        app: wordpress
+        env: prod
+
+    spec:
+      containers:
+      - image: wordpress:4.8-apache
+        name: wordpress
+        env:
+        - name: WORDPRESS_DB_HOST
+          value: mysql-svc
+        - name: WORDPRESS_DB_NAME
+          value: wordpressdb
+        - name: WORDPRESS_DB_USER
+          value: wpuser
+        - name: WORDPRESS_DB_PASSWORD
+          value: userwp
+        - name: WORDPRESS_TABLE_PREFIX
+          value: wp_
+
+        ports:
+        - containerPort: 80
+          name: wordpress
+
+        volumeMounts:
+        - name: wordpress-pv
+          mountPath: /var/www/html
+
+      volumes:
+      - name: wordpress-pv
+        persistentVolumeClaim:
+          claimName: wordpress-vol
+---

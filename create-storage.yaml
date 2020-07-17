@@ -1,0 +1,39 @@
+---
+
+kind: StorageClass
+apiVersion: storage.k8s.io/v1
+metadata:
+  name: ebs-vol
+provisioner: kubernetes.io/aws-ebs
+
+---
+
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: wordpress-vol
+  annotations:
+    volume.beta.kubernetes.io/storage-class: "ebs-vol"
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+
+---
+
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: mysql-vol
+  annotations:
+    volume.beta.kubernetes.io/storage-class: "ebs-vol"
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+
+---
